@@ -14,10 +14,13 @@ import Data.Map (Map)
 type NGram = String
 type Weight = Integer
 
+--grams 3 "Haskell" == ["Has","ask","ske","kel","ell"]
+--grams 8 "Haskell" == []
 -- Produce all n-grams contained in a given string
 grams :: Integer -> String -> [NGram]
-grams = _
-
+grams _ "" = []
+grams number str = if fromIntegral number > length str then [] else
+    (take )
 -- Produce all n-grams contained in a given string, paired
 -- with the subsequent character
 gramsWithNext :: Integer -> String -> [(NGram,Char)]
