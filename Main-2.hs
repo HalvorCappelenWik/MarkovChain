@@ -54,7 +54,7 @@ generate model start amount = _
 -- Helper function which generates n-grams from a model
 generate' :: TextModel -> NGram -> Integer -> IO [NGram]
 generate' model start amount = _
- 
+
 -- Serialize a text model and write a handle.
 writeModel :: TextModel -> Handle -> IO ()
 writeModel model h
