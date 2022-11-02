@@ -28,9 +28,13 @@ increaseWeight ngram next mod = case inmod of
     False -> Map.insert ngram (Map.insert next 1 Map.empty, 1) mod
     where inmod = Map.member ngram mod
 
+
 -- The distribution of next n-grams after a given one.
 nextDistribution :: TextModel -> NGram -> Maybe ([(NGram, Weight)],Weight)
-nextDistribution model current =
+nextDistribution model current = case (Map.lookup current model) of
+    Nothing -> Nothing
+    Just weights -> Just (Map.toList (fst weights), snd weights)
+
 
 -- Create an n-gram model from a string.
 createModel :: Integer -> String -> TextModel
