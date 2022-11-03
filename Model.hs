@@ -9,6 +9,7 @@ import qualified Data.Map as Map
 import Data.Map (Map)
 
 import NGram
+import Distribution.Compat.Lens (_1)
 
 -- The type for our Markov process text model.
 type TextModel = Map NGram (Map Char Weight , Weight)
@@ -30,13 +31,12 @@ increaseWeight ngram next mod = case inmod of
 
 
 -- The distribution of next n-grams after a given one.
+-- The distribution of next n-grams after a given one.
 nextDistribution :: TextModel -> NGram -> Maybe ([(NGram, Weight)],Weight)
-nextDistribution model current = case (Map.lookup current model) of
-    Nothing -> Nothing
-    Just weights -> Just (Map.toList (fst weights), snd weights)
-
+nextDistribution model current = _
 
 -- Create an n-gram model from a string.
 createModel :: Integer -> String -> TextModel
-createModel n = _
+createModel _ "" = emptyModel
+createModel number str = foldl (\mod (ngram, next) -> increaseWeight ngram next mod) emptyModel (gramsWithNext number str)
 

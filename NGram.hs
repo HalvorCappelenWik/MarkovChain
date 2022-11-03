@@ -29,8 +29,7 @@ gramsWithNext number str = zip (grams number str) (drop (fromIntegral number) st
 -- Recombine a list of n-grams to a string
 combineGrams :: [NGram] -> String
 combineGrams [] = []
-combineGrams [a] = a
-combineGrams (x : xs) = take 1 x ++ combineGrams xs
+combineGrams (x:xs) = x ++ (concat (map (\gram -> [gram !! ((length gram) - 1)]) xs))
 
 
 -- Update an n-gram by adding a character to the end
