@@ -39,32 +39,55 @@ gramLen = 7
 -- going through the list until a certain treshold has been
 -- reached.
 pick :: [(a,Weight)] -> Weight -> a
-pick weights treshold = _
+pick [] _ = error "Must contain weights"
+pick [(x,w)] _ = x
+pick ((x,w):xs) treshold = if w > treshold then x else pick xs (treshold - w)
 
 -- Pick a random element from a weighted list with a given
 -- total weight.
 pickRandom :: [(a,Weight)] -> Weight -> IO a
-pickRandom wl total = _
-   
+pickRandom wl total = do
+      r <- randomRIO (0, total)
+      return $ pick wl r
+
 -- Generate a fixed amount of text from a model starting from a given
 -- start string
 generate :: TextModel -> String -> Integer -> IO String
-generate model start amount = _
+generate model start amount = do
+      let startGram = toNGram gramLen start
+      let startDist = nextDistribution model startGram
+      case startDist of
+            Nothing -> return ""
+            Just (dist, total) -> do
+                  next <- pickRandom dist total
+                  rest <- generate model (start ++ [next]) (amount - 1)
+                  return (start ++ [next] ++ rest)
 
 -- Helper function which generates n-grams from a model
 generate' :: TextModel -> NGram -> Integer -> IO [NGram]
-generate' model start amount = _
- 
+generate' model start amount = do
+      case (findNgram start model) of
+            Nothing -> return []
+            Just (weights, total) -> do
+                  next <- pickRandom (Map.toList weights) total
+                  rest <- generate' model (tailNGram start ++ [next]) (amount - 1)
+                  return (start : rest)
+
+
 -- Serialize a text model and write a handle.
 writeModel :: TextModel -> Handle -> IO ()
 writeModel model h
- = ByteString.hPut h $ GZip.compress
+   = ByteString.hPut h $ GZip.compress
                      $ UTF8.fromString
                      $ show model
 
 -- Read a text model from a handle.
 readModel :: Handle -> IO TextModel
-readModel h = _
+readModel h = do
+      contents <- ByteString.hGetContents h
+      case (readMaybe $ UTF8.toString $ GZip.decompress contents) of
+            Nothing -> error "Could not read model"
+            Just model -> return model
 
 
 main = do
